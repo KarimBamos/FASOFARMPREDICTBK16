@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FasoFarmPredict - Accueil</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+          scroll-behavior: smooth;
+        }
+        body, button, a {
+          transition: background-color 0.3s, color 0.3s;
+        }
+
+      html, body {
+        height: 100%;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        position: relative;
+        overflow-x: hidden;
+        color: #2e7d32;
+        text-align: center;
+        background-color: #f7f7f7;
+        padding: 40px 20px;
+        min-height: 100vh;
+        padding-top: 400px;
+        
+      }
+      .background-slider {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        overflow: hidden;
+      }
+      .background-slider img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+      }
+      .background-slider img.active {
+        opacity: 1;
+        z-index: 1;
+      }
+      .content-wrapper {
+        position: relative;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.85);
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px 20px;
+        border-radius: 15px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        animation: slideInLeft 1.5s ease-out forwards;
+        opacity: 0;
+      }
+      @keyframes slideInLeft {
+        0% {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        100% {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .slogan {
+        font-style: italic;
+        color: #388e3c;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+      }
+      p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+      }
+      .menu {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+      }
+      .card {
+        background-color: white;
+        padding: 20px;
+        width: 230px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        cursor: pointer;
+      }
+      .card h2 {
+        color: #388e3c;
+        margin-bottom: 10px;
+      }
+      .card:hover h2 {
+        color: #1b5e20;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      .footer {
+        margin-top: 60px;
+        font-size: 0.9em;
+        color: #666;
+      }
+      .info-row {
+        margin-top: 30px;
+        font-size: 0.95em;
+        color: #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .info-row svg {
+        width: 24px;
+        height: 24px;
+        fill: #2e7d32;
+      }
+      a {
+        color: #2e7d32;
+        text-decoration: none;
+      }
+      .logo {
+        max-width: 140px;
+        margin-bottom: 40px;
+      }
+      .logo:hover {
+        transform: scale(1.55);
+        transition: transform 0.3s ease;
+      }
+
+      #top-bar {
+        position: fixed;
+        top: 228px; /* Décalé sous la bannière (ajuste si besoin) */
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #dcedc8;
+        padding: 10px 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      #top-bar a {
+        color: #2e7d32;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.3s;
+      }
+
+      #top-bar a:hover {
+        color: #558b2f;
+      }
+
+      .icon {
+        font-size: 18px;
+      }
+
+      /* 🔥 style boutton envoie message */
+      #smsToggleButton {
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s ease, background-color 0.3s ease;
+      }
+      #smsToggleButton:hover {
+        background-color: #1b5e20;
+        transform: scale(1.05);
+      }
+      #smsSection {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 🔥 Style envoie sms bouton classic */
+      .sms-section {
+        background-color: #ffffff;
+        border: 2px solid #2e7d32;
+        border-left: 6px solid #2e7d32;
+        padding: 25px;
+        margin: 40px auto;
+        max-width: 650px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        animation: slideIn 1s ease-out;
+        text-align: center;
+      }
+      .sms-section h2 {
+        margin-top: 0;
+        font-size: 1.8rem;
+        color: #2e7d32;
+      }
+
+      .sms-section p {
+        font-size: 1.1rem;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .sms-button {
+        background-color: #2e7d32;
+        color: white;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        margin-bottom: 20px;
+        transition: background-color 0.3s ease;
+      }
+
+      .sms-button:hover {
+        background-color: #1b5e20;
+      }
+
+      .sms-commandes {
+        text-align: left;
+        max-width: 500px;
+        margin: 0 auto;
+        padding-left: 20px;
+        font-size: 0.95rem;
+        color: #444;
+      }
+
+      .sms-commandes li {
+        margin-bottom: 8px;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .modal {
+        position: fixed; z-index:9999; top:0; left:0;
+        width:100%; height:100%; background:rgba(0,0,0,0.5);
+        display:flex; align-items:center; justify-content:center;
+      }
+      .modal-content {
+        background:white; padding:20px; border-radius:10px;
+        max-width:480px; width:90%; box-shadow:0 8px 18px rgba(0,0,0,0.3);
+        animation:slideIn .4s ease;
+      }
+      .modal-content h2 { color:#2e7d32; margin-top:0; }
+      .alert-item { margin:10px 0; text-align:left; font-size:1rem; }
+      .btn-alert {
+        background:#2e7d32; color:white; border:none; padding:10px 15px;
+        border-radius:6px; cursor:pointer; margin-right:10px;
+      }
+      .btn-alert:hover { background:#1b5e20; }
+      @keyframes slideIn {
+        from {transform:translateY(-40px); opacity:0;}  
+        to {transform:translateY(0); opacity:1;}
+      }
+      /* 🔥 Animation douce au survol pour les boutons */
+      button,
+      .sms-button,
+      .btn-alert {
+        transition: all 0.3s ease-in-out;
+        transform-origin: center;
+      }
+
+      button:hover,
+      .sms-button:hover,
+      .btn-alert:hover {
+        transform: scale(1.08) rotate(-1deg);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        background-color: #1b5e20 !important;
+      }
+
+      /* ✨ Animation au clic (rebond) */
+      button:active,
+      .sms-button:active,
+      .btn-alert:active {
+        transform: scale(0.95);
+      }
+
+      /* 💡 Animation plus fluide pour les cartes */
+      .card {
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-6px) scale(1.05);
+        box-shadow: 0 10px 16px rgba(0, 0, 0, 0.2);
+        background: #f1f8e9;
+      }
+
+      body.dark-mode {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      body.dark-mode .content-wrapper {
+        background: rgba(40, 40, 40, 0.9);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+      }
+
+      body.dark-mode .card {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+      }
+
+      body.dark-mode .card:hover {
+        background-color: #2c2c2c;
+        box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+      }
+
+      body.dark-mode .sms-section {
+        background-color: #1c1c1c;
+        border-color: #66bb6a;
+      }
+
+      body.dark-mode .footer,
+      body.dark-mode .info-row {
+        color: #ccc;
+      }
+
+      body.dark-mode .modal-content {
+        background-color: #2c2c2c;
+        color: #f5f5f5;
+      }
+
+      .news-ticker {
+        position: fixed;
+        top: 278px; /* ou 0 si #top-bar est en haut du viewport */
+        left: 0;
+        width: 100%;
+        background-color: #f1f8e9;
+        color: #2e7d32;
+        padding: 5px 15px;
+        z-index: 998;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      
+      .news-ticker h2 {
+        font-size: 1rem;
+        margin: 0 0 5px;
+        font-weight: bold;
+      }
+
+      .ticker {
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .ticker-items {
+        display: inline-block;
+        animation: ticker-scroll 40s linear infinite;
+      }
+
+      .ticker-items span {
+        display: inline-block;
+        padding: 0 30px;
+        font-size: 0.95rem;
+      }
+
+      @keyframes ticker-scroll {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+      }
+
+      #chatbot-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        font-family: Arial, sans-serif;
+      }
+
+      #chatbot-toggle {
+        background-color: #2e7d32;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transition: transform 0.2s ease;
+      }
+
+      #chatbot-toggle:hover {
+        transform: scale(1.05);
+      }
+
+      #chatbot-box {
+        display: none;
+        width: 280px;
+        height: 350px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+        margin-top: 10px;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+      }
+
+      #chatbot-header {
+        background: #2e7d32;
+        color: white;
+        padding: 10px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      #chatbot-messages {
+        flex: 1;
+        padding: 10px;
+        height: 230px;
+        overflow-y: auto;
+        font-size: 0.95rem;
+      }
+
+      #chatbot-input {
+        width: 100%;
+        border: none;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        outline: none;
+        font-size: 1rem;
+      }
+
+      .bot-message {
+        background: #e8f5e9;
+        padding: 8px 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        text-align: left;
+      }
+
+      .user-message {
+        background: #c8e6c9;
+        padding: 8px 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        text-align: right;
+      }
+    
+      .banniere-double {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1001; /* plus haut que #top-bar */
+        display: flex;
+        align-items: center;
+        background: linear-gradient(to right, #e8f5e9, #c8e6c9);
+        padding: 20px 30px;
+        gap: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-bottom: 2px solid #a5d6a7;
+      }
+
+      .banniere-double img {
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #2e7d32;
+      }
+
+      .texte-banniere {
+        flex: 1;
+        text-align: center;
+        padding: 0 20px;
+      }
+
+      .texte-banniere h1 {
+        font-size: 2em;
+        color: #2e7d32;
+      }
+
+      .texte-banniere h2 {
+        font-size: 1.2em;
+        color: #1b5e20;
+        margin-top: 10px;
+      }
+
+      .texte-banniere .cta {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #33691e;
+      }
+
+      .texte-banniere p {
+        font-size: 1.05em;
+        color: #388e3c;
+      }
+
+      .dashboard-menu {
+      max-width: 1200px;
+      margin: auto;
+      padding: 1rem;
+    }
+    
+    .dashboard-menu h2 {
+      margin-top: 2rem;
+      font-size: 1.4rem;
+      color: #2b5c2b;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .menu-card {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f3f9f3;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .menu-card:hover {
+      transform: scale(1.02);
+    }
+
+    .menu-card .icon {
+      font-size: 2rem;
+    }
+
+    .menu-card .content h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .menu-card .content p {
+      margin: 0.4rem 0 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+      /* Bouton flottant */
+    #suggestionBtn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #ff9800;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+      z-index: 10000;
+    }
+    #suggestionBtn:hover {
+      background: #e68900;
+    }
+
+    /* Boîte suggestion */
+    #suggestion-box {
+      display: none; /* Cachée par défaut */
+      position: fixed;
+      bottom: 70px;
+      left: 20px;
+      width: 280px;
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      z-index: 9999;
+    }
+    #suggestion-box textarea {
+      width: 100%;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      padding: 6px;
+      font-size: 14px;
+    }
+    #suggestion-box button {
+      margin-top: 6px;
+      background: #ff9800;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #suggestion-box button:hover {
+      background: #e68900;
+    }
+
+    </style>
+  </head>
+
+  <body>
+
+    <!-- Loader (chargement initial) -->
+    <div id="loader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <img src="images/logo.png" style="width:80px;" alt="Chargement..."/>
+      <div style="font-size: 1.5rem; margin-top: 10px;">⏳ Chargement FasoFarmPredict de BK16... <span id="progress">0%</span></div>
+      <div style="width: 80%; height: 10px; background: #ccc; margin-top: 10px; border-radius: 5px; overflow: hidden;">
+        <div id="progress-bar" style="width: 0%; height: 100%; background: #28a745;"></div>
+      </div>
+    </div>
+
+    <script>
+      let progress = 0;
+      const progressText = document.getElementById("progress");
+      const progressBar = document.getElementById("progress-bar");
+
+      // Délai global en millisecondes (5000 = 5 secondes)
+      const totalDuration = 5000;
+      const updateInterval = 50; // chaque 50 ms
+      const steps = totalDuration / updateInterval;
+      const increment = 95 / steps; // on s'arrête à 95% avant le "load"
+
+      const simulateLoading = setInterval(() => {
+        if (progress < 95) {
+          progress += increment;
+          progress = Math.min(progress, 95);
+          progressText.innerText = Math.floor(progress) + "%";
+          progressBar.style.width = Math.floor(progress) + "%";
+        }
+      }, updateInterval);
+
+      window.addEventListener("load", () => {
+        clearInterval(simulateLoading);
+        // On termine les 5 derniers % lentement
+        const finish = setInterval(() => {
+          if (progress < 100) {
+            progress += 5;
+            progressText.innerText = Math.floor(progress) + "%";
+            progressBar.style.width = Math.floor(progress) + "%";
+          } else {
+            clearInterval(finish);
+            // Disparition en douceur
+            setTimeout(() => {
+              document.getElementById("loader").style.opacity = "0";
+              setTimeout(() => {
+                document.getElementById("loader").style.display = "none";
+              }, 500);
+            }, 300);
+          }
+        }, 80); // vitesse plus lente pour les derniers %
+      });
+    </script>
+
+
+
+    <!-- Contenu principal de la page -->
+    <div id="main-content" style="visibility: hidden;">
+      <h1> </h1>
+      <!-- ... -->
+    </div>
+
+    <!-- 🌾 Bannière professionnelle avec deux images -->
+    <div class="banniere-double">
+      <!-- Image gauche -->
+      <img src="images/karim.jpg" alt="BK16 - Fondateur FasoFarmPredict">
+
+      <!-- Texte au centre -->
+      <div class="texte-banniere">
+        <h1>🌾 FasoFarmPredict</h1>
+        <p><em>Je ne veux plus deviner. Grâce à FasoFarmPredict, je décide et les décisions agricoles deviennent stratégiques.</em></p>
+        <h2>Avec la puissance des données, les agriculteurs du Faso deviennent les maîtres de leur saison.</h2>
+        <p class="cta">📲 Web ou SMS — l'information agricole à portée de main.</p>
+      </div>
+
+      <!-- Image droite -->
+      <img src="images/karim1.jpg" alt="BK16 - Fondateur FasoFarmPredict">
+    </div>
+
+
+    <div id="top-bar" style="display: flex; align-items: center; justify-content: space-between;">
+      <!-- BOUTON MODE SOMBRE À GAUCHE -->
+      <div id="clock" style="font-weight: bold; margin-left: 20px;"></div>
+      <div style="flex: 1; display: flex; align-items: center;">
+        <button id="toggleTheme" style="background: #2e7d32; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
+          🌙 Mode sombre
+        </button>
+      </div>
+
+      <!-- CENTRE : BOUTON À PROPOS ET LANGUE -->
+      <div style="flex: 2; display: flex; justify-content: center; align-items: center; gap: 20px;">
+        <a href="propos.html" style="color: #2e7d32; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-flex; align-items: center; gap: 6px;">
+          <span class="icon">ℹ️</span> À PROPOS
+        </a>
+
+        <select id="languageSelect" style="padding: 5px; border-radius: 6px; font-weight: bold;">
+          <option value="fr">🇫🇷 Français</option>
+          <option value="moore">🌍 Mooré</option>
+          <option value="dioula">🌍 Dioula</option>
+          <option value="fulfulde">🌍 Fulfuldé</option>
+        </select>
+      </div>
+
+      
+      <!-- DROITE : BOUTONS VOIX + SMS -->
+      <div style="flex: 1; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="playWelcomeVoice()">🔊 Écouter l'explication</button>
+        <button id="smsToggleButton">📩 Envoyer un SMS</button>
+      </div>
+
+    </div>
+    
+    <section class="news-ticker">
+      <h2>📰 Dernières actualités agricoles</h2>
+      <div class="ticker">
+        <div class="ticker-items" id="newsContainer">
+          <span>📢 Nouvelle campagne de subventions agricoles lancée au Burkina Faso.</span>
+          <span>🌱 Le mil est actuellement en phase de semis dans plusieurs régions.</span>
+          <span>💧 Des pluies modérées sont attendues cette semaine dans le Centre-Ouest.</span>
+          <span>📊 Le prix du maïs a augmenté de 10% depuis le mois dernier.</span>
+          <span>📦 Partenariat avec des distributeurs d’engrais dans 4 nouvelles communes.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🔐 Section Performance Mensuelle cachée à gauche -->
+    <aside id="performance-box" style="position: fixed; left: 20px; top: 350px; max-width: 400px; background: #e8f5e9; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 999;">
+      <details id="perfDetails">
+        <summary style="cursor: pointer; font-weight: bold; color: #2e7d32;">📊 Tableau de Performance (Privé)</summary>
+
+        <div id="authForm" style="margin-top: 10px;">
+          <input type="password" id="perfPass" placeholder="Mot de passe" style="padding: 6px; width: 90%; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px;">
+          <button onclick="authPerf()" style="background: #2e7d32; color: white; padding: 6px 10px; border: none; border-radius: 5px;">Accéder</button>
+          <p id="perfError" style="color: red; font-size: 0.9em;"></p>
+        </div>
+
+        <div id="perfContent" style="display: none;">
+          <table style="width: 100%; font-size: 0.85em; margin-top: 10px;">
+            <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Visiteurs</th>
+              <th>Commune active</th>
+              <th>Produit consulté</th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr><td>Janvier</td><td>20000</td><td>Ouagadougou</td><td>Maïs</td></tr>
+              <tr><td>Février</td><td>1450</td><td>Bobo-Dioulasso</td><td>Mil</td></tr>
+              <tr><td>Mars</td><td>16800</td><td>Koudougou</td><td>Riz</td></tr>
+              <tr><td>Avril</td><td>1700</td><td>Ouahigouya</td><td>Coton</td></tr>
+              <tr><td>Mai</td><td>2125</td><td>Dédougou</td><td>Mil</td></tr>
+              <tr><td>Juin</td><td>1200</td><td>Kaya</td><td>Arachide</td></tr>
+              <tr><td>Juillet</td><td>1450</td><td>Barsalogho</td><td>Sesame</td></tr>
+              <tr><td>Aout</td><td>1680</td><td>Fada</td><td>Riz</td></tr>
+              <tr><td>Septembre</td><td>1900</td><td>Ziniare</td><td>Coton</td></tr>
+              <tr><td>Octobre</td><td>300</td><td>Djibo</td><td>Sorgho</td></tr>
+              <tr><td>Novembre</td><td>900</td><td>Boulsa</td><td>Coton</td></tr>
+              <tr><td>Decembre</td><td>2120</td><td>Manga</td><td>Mil</td></tr>
+            </tbody>
+          </table>
+
+          <canvas id="miniChart" height="160"></canvas>
+          <button onclick="exportMiniCSV()" style="margin-top: 10px; background: #388e3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.85em;">📤 Export CSV</button>
+
+          <hr style="margin: 15px 0;">
+
+          <h4>📍 Communes les plus consultées</h4>
+          <ul id="topCommunes" style="font-size: 0.85em; padding-left: 15px;"></ul>
+
+          <h4>💬 Suggestions des utilisateurs</h4>
+          <ul id="suggestionsList" style="font-size: 0.85em; padding-left: 15px;"></ul>
+        </div>
+      </details>
+    </aside>
+
+    <script>
+      const PASS = "bk16admin";
+
+      function authPerf() {
+        const pwd = document.getElementById("perfPass").value;
+        if (pwd === PASS) {
+          document.getElementById("authForm").style.display = "none";
+          document.getElementById("perfContent").style.display = "block";
+          afficherStatsCommunes();
+          afficherSuggestions();
+        } else {
+          document.getElementById("perfError").textContent = "Mot de passe incorrect.";
+        }
+      }
+
+      function afficherStatsCommunes() {
+        const stats = JSON.parse(localStorage.getItem("stats_communes")) || {};
+        const top = Object.entries(stats)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+
+        const ul = document.getElementById("topCommunes");
+        ul.innerHTML = "";
+        top.forEach(([nom, nb]) => {
+          ul.innerHTML += `<li><strong>${nom}</strong> - ${nb} consultations</li>`;
+        });
+      }
+
+      function afficherSuggestions() {
+        const suggs = JSON.parse(localStorage.getItem("suggestions")) || [];
+        const ul = document.getElementById("suggestionsList");
+        ul.innerHTML = "";
+
+        if (suggs.length === 0) {
+          ul.innerHTML = "<li>Aucune suggestion reçue.</li>";
+        } else {
+          suggs.slice(-5).reverse().forEach(s => {
+            ul.innerHTML += `<li>🗣️ ${s}</li>`;
+          });
+        }
+      }
+
+      function exportMiniCSV() {
+        const csv = `Mois,Visiteurs,Commune,Produit
+        Janvier,1200,Ouagadougou,Maïs
+        Février,1450,Bobo-Dioulasso,Mil
+        Mars,1680,Koudougou,Riz
+        Avril,1900,Ouahigouya,Coton
+        Mai,2125,Dédougou,Mil`;
+        const blob = new Blob([csv], {type: "text/csv"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "performance_fasofarm.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    </script>
+    <!-- Boîte de suggestion utilisateur pour BK16 -->
+    <div id="suggestionBtn" onclick="toggleSuggestion()">
+      💡 Suggestion
+    </div>
+
+    <!-- Boîte de suggestion utilisateur -->
+    <div id="suggestion-box">
+      <strong>💡 Une idée ou une suggestion ?</strong>
+      <textarea id="suggestionInput" rows="2" placeholder="Ex: Ajouter des conseils pour la pluie à Kaya..."></textarea>
+      <button onclick="enregistrerSuggestion()">💬 Envoyer</button>
+    </div>
+    <script>
+      function toggleSuggestion() {
+        const box = document.getElementById("suggestion-box");
+        box.style.display = (box.style.display === "block") ? "none" : "block";
+      }
+
+      function enregistrerSuggestion() {
+        const text = document.getElementById('suggestionInput').value.trim();
+        if (!text) return alert("Merci d'entrer une suggestion.");
+        const data = JSON.parse(localStorage.getItem('suggestions') || '[]');
+        data.push({ texte: text, date: new Date().toLocaleString() });
+        localStorage.setItem('suggestions', JSON.stringify(data));
+        alert("✅ Suggestion enregistrée dans NoteBK16 !");
+        document.getElementById('suggestionInput').value = '';
+        window.location.href = "NoteBK16.html"; // Redirection vers ton bloc-notes
+      }
+    </script>
+
+      <!-- Début du Module d’Alerte -->
+
+    <div id="alertModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <h2>🔔 Alerte FasoFarmPredict BK16 </h2>
+        <div id="alertContainer"></div>
+        <div style="margin-top:20px;">
+          <button id="closeAlert" class="btn-alert">J'ai compris</button>
+          <button id="dismissToday" class="btn-alert">Ne plus montrer aujourd’hui</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "/.netlify/functions/weather";
+      const CITY = 'Ouagadougou,BF';
+      const ALERT_KEY = 'alerte_dismiss_today';
+
+      async function checkWeatherAlert() {
+        const dismissed = localStorage.getItem(ALERT_KEY);
+        if (dismissed === new Date().toLocaleDateString()) return;
+
+        try {
+          // 1. Appel météo actuel
+          const resp = await fetch(`${API_URL}?city=${CITY}`);
+          const data = await resp.json();
+
+          const desc = data.weather?.[0]?.main || '';
+          const temp = data.main?.temp;
+          const wind = data.wind?.speed;
+          const alerts = [];
+
+          // 2. Analyse météo grave (canicule, vent fort, etc.)
+          if (desc === 'Thunderstorm' || desc === 'Extreme' || wind > 15) {
+            alerts.push({
+              icon: '🌪️',
+              text: `⚠️ Vent fort ou orage détecté à ${data.name}. Protégez vos équipements agricoles !`
+            });
+          }
+
+          if (desc === 'Rain' && data.rain && data.rain['1h'] > 10) {
+            alerts.push({
+              icon: '🌧️',
+              text: `⚠️ Pluie forte prévue à ${data.name} : pensez au drainage et à la couverture des semis.`
+            });
+          }
+
+          if (temp >= 39) {
+            alerts.push({
+              icon: '🔥',
+              text: `🌡️ Canicule en cours à ${data.name} : attention au stress hydrique des cultures.`
+            });
+          }
+
+          // 3. Autres alertes utiles
+          if (desc === 'Rain' || desc === 'Thunderstorm' || desc === 'Drizzle') {
+            alerts.push({
+              icon: '🌦️',
+              text: `💧 Alerte pluie : précipitations prévues à ${data.name} aujourd’hui.`
+            });
+          }
+
+          alerts.push(
+            { icon: '📉', text: '💹 Alerte prix : Le prix du maïs a chuté la semaine dernière.' },
+            { icon: '🌾', text: '🌱 Astuce : période favorable pour semer le mil dans certaines régions.' }
+          );
+
+          if (alerts.length > 0) showAlert(alerts);
+
+        } catch (e) {
+          console.error('Erreur alerte météo', e);
+        }
+      }
+
+      function showAlert(items) {
+        const container = document.getElementById('alertContainer');
+        container.innerHTML = '';
+        items.forEach(a => {
+          const div = document.createElement('div');
+          div.className = 'alert-item';
+          div.innerHTML = `<strong>${a.icon}</strong> ${a.text}`;
+          container.appendChild(div);
+        });
+        document.getElementById('alertModal').style.display = 'flex';
+      }
+
+      document.getElementById('closeAlert').onclick = () => {
+        document.getElementById('alertModal').style.display = 'none';
+      };
+      document.getElementById('dismissToday').onclick = () => {
+        localStorage.setItem(ALERT_KEY, new Date().toLocaleDateString());
+        document.getElementById('alertModal').style.display = 'none';
+      };
+
+      // Option notifications push avec Firebase (exemple statique)
+      function initFirebaseNotifications() {
+        if (!firebase?.initializeApp) return;
+        const messaging = firebase.messaging();
+        messaging.requestPermission()
+          .then(() => messaging.getToken())
+          .then(token => console.log('Firebase token:', token))
+          .catch(console.warn);
+        messaging.onMessage(payload => {
+          alert('🔔 ' + payload.notification.title + '\n' + payload.notification.body);
+        });
+      }
+
+      window.onload = () => {
+        checkWeatherAlert();
+        initFirebaseNotifications();
+      };
+    </script>
+
+
+
+    <div class="background-slider">
+      <img src="images/acceuil.jpeg" class="active" alt="Accueil initial" />
+      <img src="images/acceuil1.jpeg" alt="Accueil 1" />
+      <img src="images/acceuil2.jpeg" alt="Accueil 2" />
+      <img src="images/acceuil3.jpeg" alt="Accueil 3" />
+      <img src="images/acceuil4.jpeg" alt="Accueil 4" />
+      <img src="images/acceuil5.jpeg" alt="Accueil 5" />
+      <img src="images/acceuil6.jpeg" alt="Accueil 6" />
+    </div>
+
+    <section class="sms-section" id="smsSection" style="display: none; margin-top: 100px;">
+      <h2>📲 Accès rapide par SMS</h2>
+      <p>Envoyez un message comme <strong><code>meteo Ouaga</code></strong> au <strong>1234</strong> et recevez immédiatement la météo locale !</p>
+
+      <button class="sms-button">📤 Envoyer SMS simulé</button>
+
+      <ul class="sms-commandes">
+        <li><code>meteo [ville]</code> → Obtenez la météo locale (ex : <code>meteo Bobo</code>)</li>
+        <li><code>prix [produit]</code> → Prix actuel (ex : <code>prix mil</code>)</li>
+        <li><code>conseil [culture]</code> → Conseil rapide (ex : <code>conseil mais</code>)</li>
+        <li><code>sol [ville]</code> → Type de sol dominant (ex : <code>sol Koudougou</code>)</li>
+      </ul>
+    </section>-
+
+
+
+    <div class="content-wrapper">
+      <img src="images/logo.png" alt="Logo FasoFarmPredict" class="logo" />
+      <h1>Bienvenue sur FasoFarmPredict</h1>
+      <p class="slogan">Anticiper. Cultiver. Prospérer.</p>
+      <p>La plateforme digitale des agriculteurs connectés du Burkina Faso.</p>
+
+      <section class="dashboard-menu">
+        <h2>🌐 Navigation rapide</h2>
+
+        <!-- Section météo & données -->
+        <div class="menu-grid">
+          <a href="meteo.html" class="menu-card">
+            <div class="icon">🌦️</div>
+            <div class="content">
+              <h3>Météo locale</h3>
+              <p>Prévisions à 7 jours selon votre commune</p>
+            </div>
+          </a>
+
+          <a href="Statistiques.html" class="menu-card">
+            <div class="icon">📊</div>
+            <div class="content">
+              <h3>Statistiques agricoles</h3>
+              <p>Analyse par région et par culture</p>
+            </div>
+          </a>
+
+          <a href="prix.html" class="menu-card">
+            <div class="icon">💰</div>
+            <div class="content">
+              <h3>Prix du marché</h3>
+              <p>Suivi en temps réel des prix agricoles</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Section assistance & conseils -->
+        <h2>👩🏾‍🌾 Assistance agricole</h2>
+        <div class="menu-grid">
+          <a href="conseils.html" class="menu-card">
+            <div class="icon">🌾</div>
+            <div class="content">
+              <h3>Conseils agricoles</h3>
+              <p>Recommandations personnalisées</p>
+            </div>
+          </a>
+
+          <a href="consultation.html" class="menu-card">
+            <div class="icon">💬</div>
+            <div class="content">
+              <h3>Consultation avec experts</h3>
+              <p>Posez vos questions 24h/24 à l’IA ou un expert</p>
+            </div>
+          </a>
+
+          <a href="formation.html" class="menu-card">
+            <div class="icon">📚</div>
+            <div class="content">
+              <h3>Centre de formation</h3>
+              <p>Guides, vidéos et fiches techniques</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Section outils productivité -->
+        <h2>🛠️ Outils & production</h2>
+        <div class="menu-grid">
+          <a href="stock.html" class="menu-card">
+            <div class="icon">📦</div>
+            <div class="content">
+              <h3>Gestion de stock</h3>
+              <p>Suivi logistique par culture</p>
+            </div>
+          </a>
+
+          <a href="suivi.html" class="menu-card">
+            <div class="icon">🌱</div>
+            <div class="content">
+              <h3>Suivi de parcelle</h3>
+              <p>Suivi journalier et alertes météo</p>
+            </div>
+          </a>
+
+          <a href="historique.html" class="menu-card">
+            <div class="icon">📅</div>
+            <div class="content">
+              <h3>Historique multi-saisons</h3>
+              <p>Comparaison annuelle de vos rendements</p>
+            </div>
+          </a>
+
+          <a href="satellite.html" class="menu-card">
+            <div class="icon">🛰️</div>
+            <div class="content">
+              <h3>Surveillance satellite</h3>
+              <p>NDVI & stress hydrique</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Section communauté & innovation -->
+        <h2>🤝 Communauté & Innovation</h2>
+        <div class="menu-grid">
+          <a href="forum.html" class="menu-card">
+            <div class="icon">💡</div>
+            <div class="content">
+              <h3>Espace communautaire</h3>
+              <p>Partagez vos idées et posez vos questions</p>
+            </div>
+          </a>
+
+          <a href="Innovations.html" class="menu-card">
+            <div class="icon">🧪</div>
+            <div class="content">
+              <h3>Innovations agricoles</h3>
+              <p>Idées et solutions par filière</p>
+            </div>
+          </a>
+
+          <a href="partenaires.html" class="menu-card">
+            <div class="icon">🏪</div>
+            <div class="content">
+              <h3>Partenaires & financements</h3>
+              <p>Accès aux marchés, aides et ventes</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Section utilisateur -->
+        <h2>👤 Espace personnel</h2>
+        <div class="menu-grid">
+          <a href="Utilisateurs.html" class="menu-card">
+            <div class="icon">👤</div>
+            <div class="content">
+              <h3>Mon profil</h3>
+              <p>Alertes personnalisées, météo, cultures</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+
+      <div class="info-row">
+        
+        <div>
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 3.9-4.5 9.3-6.4 11.3a1 1 0 0 1-1.2 0C9.5 18.3 5 12.9 5 9a7 7 0 0 1 7-7zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
+          <strong>Fondateur :</strong> BK16<br/>
+          Ingénieur Statisticien Économiste passionné de technologie et d'agriculture,<br />animé par la volonté de digitaliser l'agriculture africaine au service des communes rurales
+        </div>
+      </div>
+
+      <div class="info-row">
+        <svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.91 15.91 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1-.24 11.36 11.36 0 0 0 3.58.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A16 16 0 0 1 3 5a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.58 1 1 0 0 1-.24 1z"/></svg>
+        <span>Contactez-nous au : +226 72 85 94 57</span>
+      </div>
+
+      <div class="info-row">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-1.4 3.25-6.3 4.7a1 1 0 0 1-1.2 0L4.8 7.25A1 1 0 0 1 5.5 6h13a1 1 0 0 1 .6 1.25z"/></svg>
+        <span>Email : <a href="mailto:bamkar016@gmail.com">bamkar016@gmail.com</a></span>
+      </div>
+
+      <div class="footer">
+        &copy; 2025 FasoFarmPredict BK16. Tous droits réservés.
+      </div>
+    </div>
+
+    <script>
+      const images = document.querySelectorAll('.background-slider img');
+      let currentIndex = 0;
+      function showNextImage() {
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % images.length;
+        images[currentIndex].classList.add('active');
+      }
+      setTimeout(() => {
+        setInterval(showNextImage, 5000);
+      }, 5000);
+    </script>
+
+    <script>
+      document.querySelector('.sms-button').addEventListener('click', () => {
+        alert("📲 Simulation d'envoi de SMS au 1234.\nVous recevrez la météo locale de Ouaga !");
+      });
+    </script>
+
+    <script>
+      const translations = {
+        fr: {
+          title: "Bienvenue sur FasoFarmPredict",
+          slogan: "Anticiper. Cultiver. Prospérer.",
+          smsTitle: "📲 Accès rapide par SMS",
+          smsText: "Envoyez un message comme meteo Ouaga au 1234 et recevez immédiatement la météo locale !"
+        },
+        mo: {
+          title: "Ya soma FasoFarmPredict",
+          slogan: "Sɩda. Neba. Zaka.",
+          smsTitle: "📲 Zaka za SMS",
+          smsText: "Kɔng taabo yɩlga meteo Ouaga za 1234 nɛ zaame za m-puugri!"
+        },
+        dj: {
+          title: "I ni ce FasoFarmPredict",
+          slogan: "Kèlè. Fɛ. Di.",
+          smsTitle: "📲 SMS Kɛ Kuma",
+          smsText: "Bara sms meteo Ouaga kɔ 1234, u ye min ye kuma kɛ yɛrɛ."
+        },
+        ff: {
+          title: "A jaraama FasoFarmPredict",
+          slogan: "Jokkondiral. Doondiral. Jippinal.",
+          smsTitle: "📲 SMS ndiyam",
+          smsText: "Njiɗ meteo Ouaga ko 1234, a waawi jogi info ndiyam!"
+        }
+      };
+      function playWelcomeVoice() {
+        const lang = document.getElementById("languageSelect").value;
+        let phrase = "";
+
+        switch(lang) {
+          case "fr":
+            phrase = `Dans cette plateforme digitale conçue par BAMOGO KARIM dit l'enfant Authentique, vous trouverez en bas des boutons suivants à savoir :
+              Un bouton appelé espace de la météo
+              Obtenez la météo locale sur 7 jours
+
+              Un bouton appelé espace des Conseils
+              Recevez des conseils personnalisés selon votre culture
+
+              Un bouton appelé espace où on vous partage les Prix du marché
+              Consultez les prix du marché en temps réel
+
+              Un bouton appelé Commune
+              Découvrez les communes qui nous suivent
+
+              Un bouton appelé Espace communautaire
+              Échangeons nos idées et expériences agricoles
+
+              Un bouton appelé Statistiques par communes
+              Les données au service de la terre
+
+              Un bouton appelé : Utilisateurs/Mon Profil
+              Bienvenue dans votre espace personnel !
+              Créez votre compte ou connectez-vous pour personnaliser vos alertes : météo, conseils, prix et maladies. 
+              Restez informé en temps réel et anticipez vos prochaines récoltes
+
+              Un bouton appelé :Réinventer la production, culture par culture. voici les informations générales :
+              Chez FasoFarmPredict, nous développons et partageons des solutions sur-mesure pour chaque filière
+              Un bouton appelé : Bienvenue dans notre centre de formation digitale ! 
+              Accédez à des guides, vidéos et fiches pratiques pour améliorer vos rendements et adopter les meilleures pratiques agricoles. L'information est à votre portée, à tout moment."
+              En bas de cette page vous trouverez notre numéro Watshap ainsi qu'en haut de la page vous trouverez une bouton nommée A propos où vous trouverez davantage notre mission.`;
+            break;
+          case "moore":
+            phrase = "Laafi yam FasoFarmPredict sii ya KARIM faabriki. N saaga la yamb taaba, ka n ti barka yamb saaga.";
+            break;
+          case "dioula":
+            phrase = "I ni sogoma FasoFarmPredict. Sité ye bɛɛ ka fɛ ka i bɔ ka sɛnɛ ani ka jaatigi.";
+            break;
+          case "fulfulde":
+            phrase = "On jaaraama FasoFarmPredict. Ngal fayɗa e jam laabi ɗum jogii e hoore e naange.";
+            break;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(phrase);
+        utterance.lang = lang === "fr" ? "fr-FR" : "fr-FR"; // Les autres langues seront lues avec voix FR, sauf si tu ajoutes des voix personnalisées
+        speechSynthesis.speak(utterance);
+      }
+
+
+      document.getElementById("langSelector").addEventListener("change", function () {
+        const lang = this.value;
+        const t = translations[lang];
+
+        document.querySelector("h1").textContent = t.title;
+        document.querySelector(".slogan").textContent = t.slogan;
+        document.querySelector(".sms-section h2").textContent = t.smsTitle;
+        document.querySelector(".sms-section p").innerHTML = t.smsText;
+      });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+        const password = "BK16-FASO";
+
+        function authPerf() {
+          const val = document.getElementById("perfPass").value;
+          if (val === password) {
+            document.getElementById("authForm").style.display = "none";
+            document.getElementById("perfContent").style.display = "block";
+            drawMiniChart();
+          } else {
+            document.getElementById("perfError").textContent = "⛔ Mot de passe incorrect.";
+          }
+        }
+
+        function exportMiniCSV() {
+          const data = [
+            ["Mois", "Visiteurs"],
+            ["Janvier", 1200],
+            ["Février", 1450],
+            ["Mars", 1680],
+            ["Avril", 1900],
+            ["Mai", 2125],
+            ["Juin", 1200],
+            ["Juillet", 1450],
+            ["Aout", 168],
+            ["Septembre", 1900],
+            ["Octobre", 213],
+            ["Novembre", 100],
+            ["decembre", 214]
+          ];
+          const csv = data.map(row => row.join(",")).join("\n");
+          const blob = new Blob([csv], { type: "text/csv" });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "mini_performance.csv";
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+
+        function drawMiniChart() {
+          const ctx = document.getElementById("miniChart").getContext("2d");
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: ["Jan", "Fév", "Mars", "Avr", "Mai","Jui", "Juil", "Aout", "Sept", "Oct", "Nov", "Dec"],
+              datasets: [{
+                label: "Visiteurs",
+                data: [1200, 1450, 1680, 1900, 2125, 1200, 1450, 1680, 1900, 2125,300,899],
+                borderColor: "#2e7d32",
+                backgroundColor: "rgba(76,175,80,0.2)",
+                fill: true,
+                tension: 0.3
+              }]
+            },
+            options: {
+              plugins: { legend: { display: false } },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: { stepSize: 500 }
+                }
+              }
+            }
+          });
+        }
+      </script>
+    </script>
+    <script>
+      const toggleBtn = document.getElementById('toggleTheme');
+
+      // Charger thème depuis localStorage
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        toggleBtn.textContent = '☀️ Mode clair';
+      }
+
+      toggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        toggleBtn.textContent = isDark ? '☀️ Mode clair' : '🌙 Mode sombre';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      });
+    </script>
+
+    <script>
+      fetch('actualites.json')
+        .then(response => response.json())
+        .then(data => {
+          const container = document.getElementById('newsContainer');
+          container.innerHTML = ''; // Vide l'ancien contenu
+
+          data.forEach(item => {
+            const span = document.createElement('span');
+            span.textContent = item;
+            container.appendChild(span);
+          });
+        })
+        .catch(error => {
+          console.error("Erreur lors du chargement des actualités :", error);
+        });
+    </script>
+
+
+    <!-- 🤖 Assistant virtuel FasoBot -->
+    <div id="chatbot-container">
+      <div id="chatbot-toggle">🤖 Aide ?</div>
+      <div id="chatbot-box" style="display: none;">
+        <div id="chatbot-header">FasoBot - Assistant virtuel</div>
+        <div id="chatbot-messages" style="height: 200px; overflow-y: auto; padding: 10px;">
+          <div class="bot-message">Bonjour ! Je suis FasoBotBK16. Que puis-je faire pour vous ?</div>
+        </div>
+        <div style="display: flex; gap: 5px; padding: 10px;">
+          <input type="text" id="chatbot-input" placeholder="Posez votre question..." style="flex:1;" />
+          <button onclick="envoyerMessage()">Envoyer</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      const toggle = document.getElementById("chatbot-toggle");
+      const box = document.getElementById("chatbot-box");
+      const input = document.getElementById("chatbot-input");
+      const messagesDiv = document.getElementById("chatbot-messages");
+
+      toggle.addEventListener("click", () => {
+        box.style.display = box.style.display === "none" ? "flex" : "none";
+      });
+
+      input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          envoyerMessage();
+        }
+      });
+
+      function addMessage(text, type = "bot") {
+        const div = document.createElement("div");
+        div.className = type + "-message";
+        div.textContent = text;
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      async function envoyerMessage() {
+        const userText = input.value.trim();
+        if (!userText) return;
+
+        addMessage(userText, "user");
+        input.value = "";
+        addMessage("⏳ FasoBot réfléchit...", "bot");
+
+        try {
+          const response = await fetch("chat.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer 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" // 🔒 Mets ta vraie clé ici
+            },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [
+                {
+                  role: "system",
+                  content: "Tu es FasoBot, un assistant agricole intelligent pour les agriculteurs du Burkina Faso. Réponds toujours dans la langue utilisée par l'utilisateur (français, mooré, dioula ou fulfuldé si possible). Sois clair, bref, et utile."
+                },
+                {
+                  role: "user",
+                  content: userText
+                }
+              ],
+              temperature: 0.7
+            })
+          });
+
+          const data = await response.json();
+          messagesDiv.lastChild.remove(); // Remove "FasoBot réfléchit..."
+          const botReply = data.choices[0].message.content;
+          addMessage(botReply, "bot");
+
+        } catch (error) {
+          messagesDiv.lastChild.remove();
+          addMessage("❌ Une erreur est survenue. Vérifiez votre connexion ou la clé API.", "bot");
+          console.error(error);
+        }
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP : ${response.status} - ${response.statusText}`);
+        }
+
+      }
+    </script>
+     <!-- script bouton envoie message -->
+    <script>
+      document.getElementById("smsToggleButton").addEventListener("click", function () {
+        const section = document.getElementById("smsSection");
+        section.style.display = section.style.display === "none" ? "block" : "none";
+        section.scrollIntoView({ behavior: "smooth" });
+      });
+    </script>
+    <!-- script pour laisser le bouton saffciher sans etre cache par daures bouton -->
+    <script>
+      document.getElementById("smsToggleButton").addEventListener("click", function () {
+        const section = document.getElementById("smsSection");
+        section.style.display = "block";
+
+        // Petit délai pour bien laisser la section s'afficher
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+      });
+    </script>
+
+  </body>
+</html>
