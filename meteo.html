@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Météo Burkina Faso - FasoFarmPredict</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e0f2f1;
+    }
+    .header-image {
+      width: 100%;
+      height: 300px;
+      background: url("images/meteo.jpeg") no-repeat center center;
+      background-size: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .content-wrapper {
+      max-width: 960px;
+      margin: -60px auto 0;
+      background-color: #ffffffee;
+      padding: 50px 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      text-align: center;
+      position: relative;
+    }
+    h1 {
+      color: #1b5e20;
+      font-size: 2.2em;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 5px;
+      color: #2e7d32;
+      text-align: left;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #searchInput {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 320px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 0;
+      box-sizing: border-box;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 10;
+    }
+    /* Conteneur suggestions */
+    #suggestions {
+      position: absolute;
+      top: 158px; /* position sous input (300 header + 50 padding + ~8 margin) */
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 320px;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid #aaa;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 15;
+    }
+    #suggestions div {
+      padding: 10px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 16px;
+    }
+    #suggestions div:hover,
+    #suggestions .selected {
+      background-color: #1b5e20;
+      color: white;
+    }
+    select {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      margin: 15px auto 30px;
+      width: 100%;
+      max-width: 320px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: block;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .meteo-container, .forecast-container {
+      display: none;
+      background-color: #fafafa;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin: 0 auto 30px;
+      max-width: 700px;
+      text-align: left;
+      font-size: 16px;
+    }
+    .meteo-container img, .forecast-container img {
+      vertical-align: middle;
+      height: 50px;
+    }
+    canvas {
+      width: 100% !important;
+      height: 300px !important;
+    }
+    .btn-retour {
+      display: inline-block;
+      background-color: #1b5e20;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .btn-retour:hover {
+      background-color: #43a047;
+      color: #fff176;
+    }
+    .arrow-anim {
+      display: inline-block;
+      animation: slideArrow 1.5s infinite ease-in-out;
+      margin-right: 8px;
+      font-size: 24px;
+    }
+    @keyframes slideArrow {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(6px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes clignote {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .clignotant-marker {
+      animation: clignote 1s infinite;
+      width: 24px;
+      height: 24px;
+      background-color: rgb(0, 234, 255); /* Tu peux changer en vert/violet selon le type */
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 6px rgba(0,0,0,0.5);
+    }
+
+    .refresh-btn {
+      margin: 15px 0;
+      padding: 10px 18px;
+      font-weight: bold;
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .refresh-btn:hover {
+      background-color: #1b5e20;
+    }
+    /* styule pour laffichage au cas ou lutilisateur na pas des donnees */
+    #meteoAffiche p {
+      padding: 12px;
+      background-color: #ffe0e0;
+      border: 1px solid #d32f2f;
+      color: #b71c1c;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    /* styule pour laffichage au cas ou lutilisateur na pas des donnees */
+    .btn-localisation {
+      margin-top: 10px;
+      padding: 10px 16px;
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+    .btn-localisation:hover {
+      background-color: #1b5e20;
+    }
+
+    /* styule pour la fleche de la position actuel */
+    .user-position-marker {
+      font-size: 24px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.2); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 0.9; }
+    }
+
+    /* styule du chemin trace */
+    .btn-itineraire {
+      margin-top: 15px;
+      padding: 10px 14px;
+      font-size: 16px;
+      background-color: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-itineraire:hover {
+      background-color: #0d47a1;
+    }
+      /* styule du lien vers les conseils */
+    .lien-conseil {
+      margin-top: 20px;
+      background: #f0fdf4;
+      border-left: 5px solid #2e7d32;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 1rem;
+      animation: slideIn 0.6s ease-out;
+    }
+    .lien-conseil a.btn-conseil {
+      display: inline-block;
+      margin-top: 8px;
+      background: #2e7d32;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+    .lien-conseil a.btn-conseil:hover {
+      background: #1b5e20;
+    }
+    @keyframes slideIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="header-image"></div>
+
+  <div class="content-wrapper">
+    <h1>Météo en direct – Burkina Faso</h1>
+    <p>Sélectionnez une commune pour obtenir les conditions actuelles et les prévisions.</p>
+
+    <label for="searchInput">Rechercher une commune :</label>
+    <input type="text" id="searchInput" placeholder="Tapez pour filtrer..." autocomplete="off" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false">
+
+    <div id="suggestions" role="listbox" aria-label="Suggestions communes"></div>
+
+    <label for="citySelect">Choisir une commune :</label>
+    <select id="citySelect" size="10" aria-label="Liste des communes" onchange="afficherMeteo()">
+      <option value="">-- Choisir une commune --</option>
+    </select>
+
+    <div id="meteoAffiche" class="meteo-container" role="region" aria-live="polite"></div>
+    <div id="forecastAffiche" class="forecast-container">
+      <canvas id="chart" aria-label="Graphique des prévisions météo"></canvas>
+    </div>
+
+    <a href="FASOFARMPREDICTBK16.html" class="btn-retour" role="button">
+      <span class="arrow-anim">⬅</span> Retour à l’accueil
+    </a>
+  
+    <label for="regionSelect">Filtrer par région :</label>
+    <select id="regionSelect" onchange="filtrerParRegionEtCarte()">
+      <option value="">-- Toutes les régions --</option>
+      <option value="Boucle du Mouhoun">Boucle du Mouhoun</option>
+      <option value="Cascades">Cascades</option>
+      <option value="Centre">Centre</option>
+      <option value="Centre-Est">Centre-Est</option>
+      <option value="Centre-Nord">Centre-Nord</option>
+      <option value="Centre-Ouest">Centre-Ouest</option>
+      <option value="Centre-Sud">Centre-Sud</option>
+      <option value="Est">Est</option>
+      <option value="Hauts-Bassins">Hauts-Bassins</option>
+      <option value="Nord">Nord</option>
+      <option value="Plateau-Central">Plateau-Central</option>
+      <option value="Sahel">Sahel</option>
+      <option value="Sud-Ouest">Sud-Ouest</option>
+    </select>
+
+    <button id="refreshAll" class="refresh-btn">🔄 Actualiser toutes les communes</button>
+    <label><input type="checkbox" id="forceRefresh"> Forcer la mise à jour</label>
+    <div id="map" style="height: 500px; width: 100%; margin-top: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"></div>
+    
+    <a href="conseils.html?commune=ouaga" class="btn-conseils">
+      🌱 Voir les conseils pour les diffentes communes ainsi que les types de cultures
+    </a>
+    
+    <button id="localisationBtn" class="btn-localisation">
+      📍 Afficher la météo de ma position actuelle
+    </button>
+
+    <button onclick="afficherItineraireVersCommune()" class="btn-itineraire">
+      🧭 Voir l'itinéraire vers la commune sélectionnée
+    </button>
+
+  </div>
+
+  <script>
+    const apiKey = 'ad776ac3bf4773ae87214e499e6328e5';
+
+    const communes = [
+      "Arbinda","Bani","Markoye","Tongomayel","Yamba","Déou","Pama","Fada N’Gourma","Diapangou","Matombo",
+      "Diapaga","Gorom-Gorom","Djibo","Ouahigouya","Titao","Nouna","Dédougou","Solenzo","Boromo","Gourcy",
+      "Bobo-Dioulasso","Gaoua","Manga","Koudougou","Réo","Ouagadougou","Kaya","Tenkodogo","Boussouma","Dori",
+      "Sebba","Ziniaré","Boulsa","Kongoussi","Koupéla","Zorgo","Pô","Foubé","Yako","Kantchari","Béré",
+      "Aribinda","Boussouma","Banfora","Kongoussi","Toéni","Diébougou","Bagré","Toma","Nassoulou","Solhan",
+      "Tansarga","Solenzo","Fara","Leo","Réo","Toma","Kongoussi","Djibo","Manni","Gaoua","Pama","Loropéni",
+      "Téguéré","Gorom-Gorom","Batié","Kaya","Ouahigouya","Tougan","Koupéla","Diébougou","Leo","Banfora",
+      "Toéni","Ouargaye","Tanghin-Dassouri","Titao","Boromo","Tenkodogo","Dédougou","Koudougou","Ouagadougou",
+      "Bobo-Dioulasso","Diapaga","Fada N’Gourma","Djibo","Solhan","Kantchari","Béré","Batié","Tansarga",
+      "Nouna","Loropéni","Gaoua","Manni","Pô","Téguéré","Solenzo","Tougan","Ouargaye","Dori","Koupéla",
+      "Markoye","Zorgo","Tanghin-Dassouri","Banfora","Batié","Titao","Pama","Toéni","Diapangou","Sebba",
+      "Kantchari","Réo","Leo","Boromo","Foubé","Béré","Boussouma","Nassoulou","Solhan","Djibo","Toma",
+      "Diébougou","Kaya","Tansarga","Ouagadougou","Manni","Koudougou","Dori","Bobo-Dioulasso","Ouahigouya",
+      "Fada N’Gourma","Gorom-Gorom","Koupéla","Dédougou","Banfora","Tenkodogo","Téguéré","Loropéni","Pô",
+      "Markoye","Solhan","Ziniaré","Nouna","Kongoussi","Toéni","Batié","Tanghin-Dassouri","Sebba","Foubé",
+      "Yako","Béré","Réo","Djibo","Toma","Gaoua","Pama","Kaya","Dori","Ouagadougou","Boromo","Solenzo",
+      "Tougan","Fara","Boussouma","Ouargaye","Manga","Bobo-Dioulasso","Koupéla","Dédougou","Banfora",
+      "Diapangou","Pô","Tansarga","Markoye","Zorgo","Titao","Kongoussi","Toma","Loropéni","Foubé",
+      "Téguéré","Sebba","Gorom-Gorom","Koudougou","Kantchari","Nassoulou","Ouahigouya","Réo","Djibo",
+      "Tansarga","Banfora","Fada N’Gourma","Manni","Solhan","Dori","Ziniaré","Béré","Ouagadougou","Tenkodogo",
+      "Gaoua","Batié","Pama","Bobo-Dioulasso","Toéni","Boussouma","Dédougou","Kaya","Toma","Koupéla",
+      "Boromo","Foubé","Ouargaye","Koudougou","Markoye","Sebba","Pô","Tanghin-Dassouri","Loropéni","Nouna",
+      "Tougan","Fara","Djibo","Yako","Réo","Solenzo","Kantchari","Zorgo","Gorom-Gorom","Titao","Banfora",
+      "Fada N’Gourma","Kongoussi","Tansarga","Dori","Béré","Dédougou","Manga","Ouahigouya","Batié","Kaya",
+      "Toéni","Bobo-Dioulasso","Boussouma","Toma","Nassoulou","Pama","Koupéla","Boromo","Ouagadougou",
+      "Markoye","Koudougou","Sebba","Djibo","Loropéni","Solhan","Gaoua","Tenkodogo","Ziniaré","Foubé",
+      "Tougan","Pô","Tanghin-Dassouri","Yako","Titao","Réo","Kantchari","Ouargaye","Dédougou","Banfora",
+      "Kongoussi","Fada N’Gourma","Tansarga","Béré","Dori","Djibo","Nouna","Manni","Batié","Ouahigouya",
+      "Kaya","Bobo-Dioulasso","Toma","Koupéla","Boromo","Foubé","Pama","Markoye","Sebba","Pô","Tougan",
+      "Zorgo","Titao","Loropéni","Tenkodogo","Banfora","Fada N’Gourma","Dédougou","Ouagadougou","Réo",
+      "Gorom-Gorom","Tansarga","Nassoulou","Dori","Djibo","Koudougou","Béré","Toma","Solhan","Kantchari",
+      "Yako","Gaoua","Boussouma","Kaya","Toéni","Ouahigouya","Batié","Pama","Ouargaye","Foubé","Téguéré",
+      "Markoye","Manni","Banfora","Ziniaré","Titao","Tansarga","Dédougou","Kongoussi","Koupéla","Fada N’Gourma",
+      "Sebba","Dori","Djibo","Béré","Pô","Bobo-Dioulasso","Réo","Tougan","Ouagadougou","Tenkodogo",
+      "Fara","Boromo","Koudougou","Nouna","Toma","Gaoua","Yako","Loropéni","Kantchari","Solhan","Pama",
+      "Banfora","Gorom-Gorom","Dédougou","Fada N’Gourma","Markoye","Boussouma","Tansarga","Batié","Titao",
+      "Tougan","Ouargaye","Dori","Tansarga","Nassoulou","Dédougou","Djibo","Kaya","Koupéla","Toma","Zorgo",
+      "Koudougou","Banfora","Béré","Manni","Pô","Loropéni","Sebba","Ouagadougou","Foubé","Ouahigouya",
+      "Tenkodogo","Gaoua","Pama","Bobo-Dioulasso","Téguéré","Titao","Fada N’Gourma","Djibo","Solhan",
+      "Réo","Markoye","Toéni","Dédougou","Banfora","Kongoussi","Koupéla","Tansarga","Nouna","Ziniaré","Toma",
+      "Kantchari","Yako","Boromo","Béré","Gorom-Gorom","Bat ié","Pô","Ouargaye","Foubé","Tougan","Dori",
+      "Sebba","Kaya","Tenkodogo","Ouagadougou","Boussouma","Fada N’Gourma","Markoye","Djibo","Tansarga","Banfora",
+      "Koudougou","Dédougou","Bobo-Dioulasso","Zorgo","Toma","Koupéla","Loropéni","Manni","Fara","Pama",
+      "Titao","Ouahigouya","Gorom-Gorom","Nouna","Béré","Kantchari","Tansarga","Réo","Kongoussi","Dori",
+      "Toéni","Banfora","Djibo","Kaya","Fada N’Gourma","Barsalogho","Batié","Boussouma","Sebba","Pô",
+      "Tougan","Foubé","Markoye","Koudougou","Ziniaré","Boromo","Tenkodogo","Manga","Dédougou","Toma",
+      "Koupéla","Ouargaye","Solhan","Tansarga","Fada N’Gourma","Djibo","Banfora","Kongoussi","Nouna",
+      "Réo","Pama","Yako","Gaoua","Titao","Béré","Kantchari","Tougan","Foubé","Loropéni","Dori","Bobo-Dioulasso",
+      "Ouahigouya","Koudougou","Manni","Tansarga","Ouagadougou","Kaya","Toma","Tenkodogo","Fada N’Gourma","Djibo",
+      "Tougan","Banfora","Batié","Toma","Dédougou","Pô","Boussouma","Koupéla","Sebba","Zorgo","Markoye",
+      "Nouna","Gaoua","Réo","Téguéré","Foubé","Ouargaye","Titao","Loropéni","Béré","Kantchari","Fada N’Gourma",
+      "Tansarga","Bobo-Dioulasso","Djibo","Banfora","Dori","Manni","Ouagadougou","Kaya","Koudougou","Tougan",
+      "Batié","Nouna","Pama","Toma","Koupéla","Dédougou","Fada N’Gourma","Boromo","Tenkodogo","Sebba",
+      "Ouahigouya","Markoye","Béré","Ziniaré","Gaoua","Djibo","Kantchari","Toéni","Réo","Banfora","Fada N’Gourma",
+      "Solhan","Tansarga","Dori","Titao","Tenkodogo","Bobo-Dioulasso","Pô","Toma","Koupéla","Boussouma","Ouagadougou"
+    ];
+
+    // Nettoyage doublons & tri alphabétique
+    const communesUnique = [...new Set(communes)].sort((a,b) => a.localeCompare(b, 'fr'));
+
+    // Eléments DOM
+    const citySelect = document.getElementById('citySelect');
+    const searchInput = document.getElementById('searchInput');
+    const suggestions = document.getElementById('suggestions');
+    let currentMarkers = [];
+    // Remplit le select (toutes communes)
+    function remplirCommunes(liste) {
+      citySelect.innerHTML = '';
+      const optionVide = document.createElement('option');
+      optionVide.value = "";
+      optionVide.textContent = "-- Choisir une commune --";
+      citySelect.appendChild(optionVide);
+
+      liste.forEach(commune => {
+        const opt = document.createElement('option');
+        opt.value = commune;
+        opt.textContent = commune;
+        citySelect.appendChild(opt);
+      });
+    }
+
+    // Filtre et affiche suggestions sous input
+    function afficherSuggestions(filtre) {
+      const filtred = communesUnique.filter(c => c.toLowerCase().includes(filtre.toLowerCase()));
+      suggestions.innerHTML = '';
+      if (filtre.trim() === '' || filtred.length === 0) {
+        suggestions.style.display = 'none';
+        return;
+      }
+      filtred.slice(0, 10).forEach((commune, idx) => {
+        const div = document.createElement('div');
+        div.textContent = commune;
+        div.setAttribute('role', 'option');
+        div.id = 'suggestion-'+idx;
+        div.addEventListener('click', () => {
+          searchInput.value = commune;
+          citySelect.value = commune;
+          suggestions.style.display = 'none';
+          afficherMeteo();
+        });
+        suggestions.appendChild(div);
+      });
+      suggestions.style.display = 'block';
+      selectedIndex = -1;
+      searchInput.setAttribute('aria-expanded', 'true');
+    }
+
+    // Gestion navigation clavier dans suggestions
+    let selectedIndex = -1;
+    searchInput.addEventListener('keydown', e => {
+      const items = suggestions.querySelectorAll('div');
+      if (suggestions.style.display === 'block' && items.length > 0) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex + 1) % items.length;
+          majSelection(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+          majSelection(items);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (selectedIndex >= 0 && selectedIndex < items.length) {
+            items[selectedIndex].click();
+            selectedIndex = -1;
+            suggestions.style.display = 'none';
+          }
+        } else if (e.key === 'Escape') {
+          suggestions.style.display = 'none';
+          selectedIndex = -1;
+          searchInput.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+
+    function majSelection(items) {
+      items.forEach((item,i) => {
+        if (i === selectedIndex) {
+          item.classList.add('selected');
+          item.setAttribute('aria-selected', 'true');
+          searchInput.setAttribute('aria-activedescendant', item.id);
+        } else {
+          item.classList.remove('selected');
+          item.setAttribute('aria-selected', 'false');
+        }
+      });
+    }
+
+    // Masquer suggestions si clic à l’extérieur
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+        suggestions.style.display = 'none';
+        selectedIndex = -1;
+        searchInput.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Au changement de la sélection dans le select
+    citySelect.addEventListener('change', () => {
+      searchInput.value = citySelect.value;
+      afficherMeteo();
+      suggestions.style.display = 'none';
+      selectedIndex = -1;
+      searchInput.setAttribute('aria-expanded', 'false');
+    });
+
+    // Au changement dans l'input de recherche
+    searchInput.addEventListener('input', () => {
+      afficherSuggestions(searchInput.value);
+      citySelect.value = "";
+      document.getElementById('meteoAffiche').style.display = 'none';
+      document.getElementById('forecastAffiche').style.display = 'none';
+    });
+
+    //       recuperation de mes donnees en format js
+    
+    // Affichage météo + prévisions + graphique
+    async function afficherMeteo() {
+      const city = citySelect.value || searchInput.value;
+      const meteoZone = document.getElementById("meteoAffiche");
+      const forecastZone = document.getElementById("forecastAffiche");
+
+      if (!city) {
+        meteoZone.style.display = "none";
+        forecastZone.style.display = "none";
+        return;
+      }
+
+      const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)},BF&units=metric&lang=fr&appid=${apiKey}`;
+      const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)},BF&units=metric&lang=fr&appid=${apiKey}`;
+
+      try {
+        const [weatherResp, forecastResp] = await Promise.all([
+          fetch(weatherUrl),
+          fetch(forecastUrl)
+        ]);
+        const weatherData = await weatherResp.json();
+        const forecastData = await forecastResp.json();
+
+        if (weatherData.cod === 200) {
+          meteoZone.innerHTML = `
+            <h2>${weatherData.name} — ${weatherData.weather[0].description}
+              <img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png" alt="Icone météo">
+            </h2>
+            <ul>
+              <li>🌡 Température : ${weatherData.main.temp.toFixed(1)} °C</li>
+              <li>💧 Humidité : ${weatherData.main.humidity}%</li>
+              <li>💨 Vent : ${weatherData.wind.speed.toFixed(1)} m/s</li>
+              <li>📈 Pression : ${weatherData.main.pressure} hPa</li>
+              <li>☁️ Nuages : ${weatherData.clouds.all}%</li>
+            </ul>`;
+          meteoZone.style.display = "block";
+        } else {
+          meteoZone.innerHTML = `<p>Impossible d'obtenir la météo pour "${city}".</p>`;
+          meteoZone.style.display = "block";
+        }
+
+        if (forecastData.cod === "200") {
+          const labels = forecastData.list.filter((_, i) => i % 8 === 0).map(f => {
+            const date = new Date(f.dt * 1000);
+            return `${date.getDate()}/${date.getMonth() + 1}`;
+          });
+
+          const tempData = forecastData.list.filter((_, i) => i % 8 === 0).map(f => f.main.temp);
+
+          const ctx = document.getElementById('chart').getContext('2d');
+          if(window.myChart) window.myChart.destroy();
+          window.myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels,
+              datasets: [{
+                label: 'Température (5 jours)',
+                data: tempData,
+                borderColor: '#1b5e20',
+                backgroundColor: 'rgba(27, 94, 32, 0.2)',
+                fill: true,
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: false
+                }
+              }
+            }
+          });
+
+          forecastZone.style.display = "block";
+        } else {
+          forecastZone.style.display = "none";
+        }
+
+      } catch (err) {
+        if (!navigator.onLine) {
+          meteoZone.innerHTML = `<p>📡 Veuillez vous connecter à Internet pour profiter des données météo.</p>`;
+        } else {
+          meteoZone.innerHTML = `<p>❗️Erreur lors de la récupération des données météo. Veuillez réessayer plus tard.</p>`;
+        }
+        meteoZone.style.display = "block";
+        forecastZone.style.display = "none";
+      }
+      // Analyse des prévisions pour détecter de la pluie
+      const vaPleuvoir = forecastData.list.some(f => f.weather[0].main.toLowerCase().includes("rain"));
+
+      // Génération du lien dynamique
+      const lienConseil = document.createElement("div");
+      lienConseil.classList.add("lien-conseil");
+
+      if (vaPleuvoir) {
+        const communeEnc = encodeURIComponent(city);
+        lienConseil.innerHTML = `
+          <p>🌧 Il va pleuvoir demain ?</p>
+          <a href="conseils.html?commune=${communeEnc}" class="btn-conseil">
+            👉 Voici les bonnes pratiques de semis 🌱
+          </a>
+        `;
+      } else {
+        lienConseil.innerHTML = `
+          <p>✅ Aucune pluie imminente détectée.</p>
+          <a href="conseils.html" class="btn-conseil">
+            👉 Accédez aux conseils agricoles adaptés
+          </a>
+        `;
+      }
+      // Ajoute sous la météo
+      forecastZone.appendChild(lienConseil);
+
+    }
+
+ 
+        // Exemple d'association région -> communes
+    const regions = {
+      "Boucle du Mouhoun": ["Dédougou", "Nouna", "Tougan", "Toma", "Solenzo", "Boromo"],
+      "Cascades": ["Banfora", "Sindou", "Niangoloko"],
+      "Centre": ["Ouagadougou", "Tanghin-Dassouri", "Komsilga", "Saaba"],
+      "Centre-Est": ["Tenkodogo", "Koupéla", "Bittou", "Garango"],
+      "Centre-Nord": ["Kaya", "Boussouma", "Pissila", "Tougouri"],
+      "Centre-Ouest": ["Koudougou", "Réo", "Léo", "Sourgou"],
+      "Centre-Sud": ["Manga", "Pô", "Guiaro"],
+      "Est": ["Fada N’Gourma", "Pama", "Diapaga", "Kantchari"],
+      "Hauts-Bassins": ["Bobo-Dioulasso", "Farakoba", "Dandé", "Houndé"],
+      "Nord": ["Ouahigouya", "Titao", "Gorom-Gorom", "Djibo"],
+      "Plateau-Central": ["Ziniaré", "Zorgho", "Boussé"],
+      "Sahel": ["Dori", "Sebba", "Gorom-Gorom", "Djibo"],
+      "Sud-Ouest": ["Gaoua", "Diébougou", "Batié", "Kampti"]
+    };
+
+    // Met à jour le menu des communes selon la région
+
+    // Initialisation de la carte Leaflet
+    let map;
+    function initCarte() {
+      map = L.map('map').setView([12.3714, -1.5197], 6); // Centré sur le Burkina Faso
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Données © OpenStreetMap',
+        maxZoom: 18
+      }).addTo(map);
+    }
+
+    function clearMarkers() {
+      currentMarkers.forEach(marker => map.removeLayer(marker));
+      currentMarkers = [];
+    }
+
+    function addMeteoMarker(data, commune) {
+      const clignotantIcon = L.divIcon({
+        className: 'clignotant-marker',
+        iconSize: [24, 24]
+      });
+
+      const marker = L.marker([data.coord.lat, data.coord.lon], {
+        icon: clignotantIcon
+      }).addTo(map);
+
+      marker.bindPopup(`<b>${commune}</b><br>🌡 ${data.main.temp.toFixed(1)} °C<br>💧 ${data.main.humidity}%`);
+      currentMarkers.push(marker);
+    }
+
+    // Ajoute les marqueurs météo à la carte
+    async function ajouterMarqueurs(communes) {
+      if (!map || !communes) return;
+      clearMarkers();
+
+      const force = document.getElementById("forceRefresh")?.checked || false;
+
+      for (const commune of communes) {
+        const cacheKey = `meteo_${commune}`;
+        const cached = sessionStorage.getItem(cacheKey);
+
+        if (cached && !force) {
+          const data = JSON.parse(cached);
+          addMeteoMarker(data, commune);
+        } else {
+          const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(commune)},BF&units=metric&lang=fr&appid=${apiKey}`;
+          try {
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.coord) {
+              sessionStorage.setItem(cacheKey, JSON.stringify(data));
+              addMeteoMarker(data, commune);
+            }
+          } catch (e) {
+            console.warn("Erreur météo pour : " + commune);
+          }
+        }
+      }
+    }
+
+    
+    // filtration de mes region sur la carte
+    function filtrerParRegionEtCarte() {
+      const region = document.getElementById("regionSelect").value;
+      if (region && regions[region]) {
+        const communes = regions[region].sort();
+        remplirCommunes(communes); // Met à jour le <select> commune
+        ajouterMarqueurs(communes); // Met à jour la carte
+      } else {
+        remplirCommunes(communesUnique);
+        ajouterMarqueurs(communesUnique.slice(0, 20)); // Ou toutes les communes ?
+      }
+    }
+
+
+
+    // Lance tout à l’ouverture
+    window.onload = () => {
+      remplirCommunes(communesUnique);
+      initCarte();
+      ajouterMarqueurs(communesUnique.slice(0, 20)); // Par défaut 20 communes
+    };
+
+    document.getElementById("refreshAll").addEventListener("click", () => {
+      ajouterMarqueurs(communesUnique.slice(0, 100)); // Tu peux ajuster à 50, 100 ou + si ton quota le permet
+    });
+
+    document.getElementById('localisationBtn').addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          // Marqueur utilisateur
+          const userIcon = L.divIcon({
+            className: 'user-position-marker',
+            html: '➤',
+            iconSize: [30, 30]
+          });
+
+          const marker = L.marker([lat, lon], { icon: userIcon }).addTo(map);
+          map.setView([lat, lon], 9); // Zoom sur la position
+
+          const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=fr&appid=${apiKey}`;
+
+          try {
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.cod === 200) {
+              document.getElementById('meteoAffiche').innerHTML = `
+                <h2>📍 ${data.name} — ${data.weather[0].description}
+                  <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Icone météo">
+                </h2>
+                <ul>
+                  <li>🌡 Température : ${data.main.temp.toFixed(1)} °C</li>
+                  <li>💧 Humidité : ${data.main.humidity}%</li>
+                  <li>💨 Vent : ${data.wind.speed.toFixed(1)} m/s</li>
+                  <li>📈 Pression : ${data.main.pressure} hPa</li>
+                  <li>☁️ Nuages : ${data.clouds.all}%</li>
+                </ul>`;
+              document.getElementById('meteoAffiche').style.display = 'block';
+            } else {
+              document.getElementById('meteoAffiche').innerHTML = `<p>❗️Données météo non disponibles pour votre position actuelle.</p>`;
+            }
+          } catch (e) {
+            document.getElementById('meteoAffiche').innerHTML = `<p>❗️Erreur lors de la récupération météo de votre position.</p>`;
+          }
+
+        }, () => {
+          alert("❗️ Impossible d'accéder à votre position. Veuillez autoriser la géolocalisation.");
+        });
+      } else {
+        alert("Votre navigateur ne prend pas en charge la géolocalisation.");
+      }
+    });
+
+    // Section tracement du chemin a revoir le code secret
+
+
+    let routingControl; // Variable globale pour gérer le tracé
+    const orsApiKey = '5a2f1b30xxxxxxxxxxxxxxxxxxxxxxxx'; // Remplace ici
+    async function afficherItineraireVersCommune() {
+      if (!navigator.geolocation) {
+        alert("❗️La géolocalisation n'est pas disponible.");
+        return;
+      }
+
+      const commune = citySelect.value || searchInput.value;
+      if (!commune) {
+        alert("❗️Veuillez d'abord sélectionner une commune.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const userLatLng = [pos.coords.latitude, pos.coords.longitude];
+
+        try {
+          // Obtenir les coordonnées GPS de la commune sélectionnée
+          const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(commune)},BF&appid=${apiKey}`);
+          const data = await response.json();
+
+          if (data && data.coord) {
+            const communeLatLng = [data.coord.lat, data.coord.lon];
+
+            // Supprime l'itinéraire précédent s'il existe
+            if (routingControl) {
+              map.removeControl(routingControl);
+            }
+
+            // Affiche l’itinéraire
+            routingControl = L.Routing.control({
+              waypoints: [
+                L.latLng(userLatLng[0], userLatLng[1]),
+                L.latLng(communeLatLng[0], communeLatLng[1])
+              ],
+              lineOptions: {
+                styles: [{ color: 'blue', weight: 5 }]
+              },
+              createMarker: function(i, wp, nWps) {
+                return L.marker(wp.latLng, {
+                  icon: L.divIcon({ className: 'custom-route-icon', html: i === 0 ? '📍' : '🏘️' })
+                });
+              },
+              routeWhileDragging: false,
+              show: false,
+              addWaypoints: false
+            }).addTo(map);
+
+            map.fitBounds(L.latLngBounds([userLatLng, communeLatLng]), { padding: [50, 50] });
+          } else {
+            alert("❗️Commune non trouvée pour afficher le trajet.");
+          }
+        } catch (e) {
+          alert("❗️Erreur lors de la récupération des données GPS.");
+        }
+      }, () => {
+        alert("❗️Veuillez activer la géolocalisation pour afficher l'itinéraire.");
+      });
+    }
+
+  </script>
+  <script>
+    // Fonction de préchargement météo si paramètre présent
+    function verifierParametreURL() {
+      const params = new URLSearchParams(window.location.search);
+      const ville = params.get("ville");
+
+      if (ville) {
+        // Remplit le menu commune s'il existe
+        const regionKeys = Object.keys(regions);
+        for (let region of regionKeys) {
+          if (regions[region].includes(capitaliser(ville))) {
+            document.getElementById("regionSelect").value = region;
+            remplirCommunes(regions[region]);
+            document.getElementById("communeSelect").value = ville;
+            ajouterMarqueurs([ville]); // Affiche météo sur la carte
+            chargerGraphiquePrevision(ville); // Affiche prévision si existante
+            break;
+          }
+        }
+      }
+    }
+
+    // Pour normaliser (optionnel)
+    function capitaliser(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
+    function enregistrerConsultation(commune) {
+      const stats = JSON.parse(localStorage.getItem("stats_communes")) || {};
+      stats[commune] = (stats[commune] || 0) + 1;
+      localStorage.setItem("stats_communes", JSON.stringify(stats));
+    }
+
+  </script>
+  
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+
+</body>
+</html>
